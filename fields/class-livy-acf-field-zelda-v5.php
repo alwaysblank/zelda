@@ -1,5 +1,7 @@
 <?php
 
+use Zenodorus\Arrays;
+
 // exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -11,38 +13,6 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 
 
 	class livy_acf_field_zelda extends acf_field {
-
-		/**
-		 * array_map but with keys.
-		 *
-		 * Pulled from Zenodorus\Arrays, because I don't want to include the entire library.
-		 *
-		 * @link https://github.com/zenodorus-tools/arrays
-		 *
-		 * @param callable $function
-		 * @param array    $array
-		 *
-		 * @return mixed
-		 */
-		function array_map_assoc( callable $function, array $array ) {
-			$new_array = array();
-			foreach ( $array as $key => $value ) {
-				$result = call_user_func( $function, $value, $key );
-				if ( is_array( $result ) ) {
-					if ( 1 === count( $result ) ) {
-						// Only returned a value, no key, so keep existing key.
-						$new_array[ $key ] = array_shift( $result );
-					} elseif ( 2 === count( $result ) ) {
-						// Returned a key and a value, so set a new key.
-						$new_array[ array_shift( $result ) ] = array_shift( $result );
-					}
-				}
-				unset( $result );
-			}
-
-			return $new_array;
-		}
-
 
 		/*
 		*  __construct
@@ -266,7 +236,8 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 			if ( $field['post_type'] && is_array( $field['post_type'] ) ) {
 				$type_options['content'] = array(
 					'label'   => "Content",
-					'options' => $this->array_map_assoc( function ( $key, $value ) {
+					'slug'    => 'content',
+					'options' => Arrays::mapKeys( function ( $key, $value ) {
 						$post_type = get_post_type_object( $key );
 
 						return array( $key, $post_type->labels->name );
@@ -277,7 +248,8 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 			if ( $field['taxonomy'] && is_array( $field['taxonomy'] ) ) {
 				$type_options['taxonomies'] = array(
 					'label'   => "Taxonomies",
-					'options' => $this->array_map_assoc( function ( $key, $value ) {
+					'slug'    => 'taxonomy',
+					'options' => Arrays::mapKeys( function ( $key, $value ) {
 						$taxonomy = get_taxonomy( $key );
 
 						return array( $key, $taxonomy->labels->name );
@@ -315,7 +287,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 							printf(
 								'<optgroup label="%s">%s</optgroup>',
 								$label['label'],
-								join( '', $this->array_map_assoc( function ( $value, $key ) use ( $field ) {
+								join( '', Arrays::mapKeys( function ( $value, $key ) use ( $field, $label ) {
 									return [
 										sprintf(
 											'<option value="%s" %s>%s</option>',
@@ -445,7 +417,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
                        value="<?php echo esc_attr( $field['value']['user_class'] ) ?>">
 				<?php
 			} else {
-			    // Still submit this value, but make it null
+				// Still submit this value, but make it null
 				?>
                 <input type="hidden" name="<?php echo esc_attr( $field['name'] ) ?>[user_class]"
                        value="">
