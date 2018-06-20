@@ -12,6 +12,37 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 
 	class livy_acf_field_zelda extends acf_field {
 
+		/**
+		 * array_map but with keys.
+		 *
+		 * Pulled from Zenodorus\Arrays, because I don't want to include the entire library.
+		 *
+		 * @link https://github.com/zenodorus-tools/arrays
+		 *
+		 * @param callable $function
+		 * @param array    $array
+		 *
+		 * @return mixed
+		 */
+		function array_map_assoc( callable $function, array $array ) {
+			$new_array = array();
+			foreach ( $array as $key => $value ) {
+				$result = call_user_func( $function, $value, $key );
+				if ( is_array( $result ) ) {
+					if ( 1 === count( $result ) ) {
+						// Only returned a value, no key, so keep existing key.
+						$new_array[ $key ] = array_shift( $result );
+					} elseif ( 2 === count( $result ) ) {
+						// Returned a key and a value, so set a new key.
+						$new_array[ array_shift( $result ) ] = array_shift( $result );
+					}
+				}
+				unset( $result );
+			}
+
+			return $new_array;
+		}
+
 
 		/*
 		*  __construct
@@ -46,7 +77,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 			*  category (string) basic | content | choice | relational | jquery | layout | CUSTOM GROUP NAME
 			*/
 
-			$this->category = 'basic';
+			$this->category = 'relational';
 
 
 			/*
@@ -54,7 +85,16 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 			*/
 
 			$this->defaults = array(
-				'font_size' => 14,
+				'post_type'         => false,
+				'post_type_archive' => false,
+				'taxonomy'          => false,
+				'link_class'        => null,
+				'user_class'        => false,
+				'default_text'      => "Read More",
+				'user_text'         => false,
+				'email'             => false,
+				'external'          => false,
+				'external_new_tab'  => true,
 			);
 
 
@@ -107,11 +147,89 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 			*/
 
 			acf_render_field_setting( $field, array(
-				'label'        => __( 'Font Size', 'acf-zelda' ),
-				'instructions' => __( 'Customise the input font size', 'acf-zelda' ),
-				'type'         => 'number',
-				'name'         => 'font_size',
-				'prepend'      => 'px',
+				'label'        => __( 'Allowed Post Types', 'acf' ),
+				'instructions' => '',
+				'type'         => 'select',
+				'name'         => 'post_type',
+				'choices'      => acf_get_pretty_post_types(),
+				'multiple'     => 1,
+				'ui'           => 1,
+				'allow_null'   => 1,
+				'placeholder'  => __( "", 'acf' ),
+			) );
+
+			acf_render_field_setting( $field, array(
+				'label'        => __( 'Post Type Archives', 'acf-zelda' ),
+				'instructions' => __( 'Allow users to link to post type archives?', 'acf-zelda' ),
+				'name'         => 'post_type_archive',
+				'type'         => 'true_false',
+				'ui'           => 1,
+			) );
+
+			acf_render_field_setting( $field, array(
+				'label'        => __( 'Allowed Taxonomies', 'acf' ),
+				'instructions' => 'This allows users to link to taxonomy archives.',
+				'type'         => 'select',
+				'name'         => 'taxonomy',
+				'choices'      => acf_get_pretty_taxonomies(),
+				'multiple'     => 1,
+				'ui'           => 1,
+				'allow_null'   => 1,
+				'placeholder'  => __( "", 'acf' ),
+			) );
+
+			acf_render_field_setting( $field, array(
+				'label'        => __( 'Class', 'acf-zelda' ),
+				'instructions' => __( 'This class will be applied to all returned elements.', 'acf-zelda' ),
+				'type'         => 'text',
+				'name'         => 'link_class',
+			) );
+
+			acf_render_field_setting( $field, array(
+				'label'        => __( 'User Class', 'acf-zelda' ),
+				'instructions' => __( 'Allow users to add an arbitrary class to the returned element?', 'acf-zelda' ),
+				'name'         => 'user_class',
+				'type'         => 'true_false',
+				'ui'           => 1,
+			) );
+
+			acf_render_field_setting( $field, array(
+				'label'        => __( 'User Text', 'acf-zelda' ),
+				'instructions' => __( 'Allow users set the content of the linked text?', 'acf-zelda' ),
+				'name'         => 'user_text',
+				'type'         => 'true_false',
+				'ui'           => 1,
+			) );
+
+			acf_render_field_setting( $field, array(
+				'label'        => __( 'Default Text', 'acf-zelda' ),
+				'instructions' => __( "This will be the linked text unless <b>User Text</b> is True and the user has entered text.", 'acf-zelda' ),
+				'type'         => 'text',
+				'name'         => 'default_text',
+			) );
+
+			acf_render_field_setting( $field, array(
+				'label'        => __( 'Email', 'acf-zelda' ),
+				'instructions' => __( 'Allow email links?', 'acf-zelda' ),
+				'name'         => 'email',
+				'type'         => 'true_false',
+				'ui'           => 1,
+			) );
+
+			acf_render_field_setting( $field, array(
+				'label'        => __( 'External', 'acf-zelda' ),
+				'instructions' => __( 'Allow external links?', 'acf-zelda' ),
+				'name'         => 'external',
+				'type'         => 'true_false',
+				'ui'           => 1,
+			) );
+
+			acf_render_field_setting( $field, array(
+				'label'        => __( 'Open in New Tab', 'acf-zelda' ),
+				'instructions' => __( 'Open external links in new tab?', 'acf-zelda' ),
+				'name'         => 'external_new_tab',
+				'type'         => 'true_false',
+				'ui'           => 1,
 			) );
 
 		}
@@ -138,22 +256,218 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 			/*
 			*  Review the data of $field.
 			*  This will show what data is available
-			*/
+			 */
+
+			/**
+			 * Generate a list of possible link types.
+			 */
+			$type_options = array();
+
+			if ( $field['post_type'] && is_array( $field['post_type'] ) ) {
+				$type_options['content'] = array(
+					'label'   => "Content",
+					'options' => $this->array_map_assoc( function ( $key, $value ) {
+						$post_type = get_post_type_object( $key );
+
+						return array( $key, $post_type->labels->name );
+					}, $field['post_type'] )
+				);
+			}
+
+			if ( $field['taxonomy'] && is_array( $field['taxonomy'] ) ) {
+				$type_options['taxonomies'] = array(
+					'label'   => "Taxonomies",
+					'options' => $this->array_map_assoc( function ( $key, $value ) {
+						$taxonomy = get_taxonomy( $key );
+
+						return array( $key, $taxonomy->labels->name );
+					}, $field['taxonomy'] )
+				);
+			}
+
+			if ( $field['email'] ) {
+				$type_options['email'] = "Email";
+			}
+
+			if ( $field['external'] ) {
+				$type_options['external'] = "External";
+			}
 
 			echo '<pre>';
-			print_r( $field );
+			var_dump( $field );
+
+
+			var_dump( $type_options );
 			echo '</pre>';
 
+			/**
+			 * Generate some input fields.
+			 */
+
+			/**
+			 * Select type of link
+			 */
+			if ( is_array( $type_options ) && count( $type_options ) > 0 ) {
+				?>
+                <select name="<?php echo esc_attr( $field['name'] ) ?>[type]">
+					<?php foreach ( $type_options as $option => $label ) {
+						if ( is_array( $label ) ) {
+							printf(
+								'<optgroup label="%s">%s</optgroup>',
+								$label['label'],
+								join( '', $this->array_map_assoc( function ( $value, $key ) use ( $field ) {
+									return [
+										sprintf(
+											'<option value="%s" %s>%s</option>',
+											$key,
+											$key == $field['value']['type'] ? 'selected' : null,
+											$value
+										)
+									];
+								}, $label['options'] )
+								) );
+						} elseif ( is_string( $label ) ) {
+							printf(
+								'<option value="%s" %s>%s</option>',
+								$option,
+								$option == $field['value']['type'] ? 'selected' : null,
+								$label
+							);
+						}
+					} ?>
+                </select>
+				<?php
+			}
+
+			/**
+			 * Select the content, if there is content
+			 */
+			if ( isset( $type_options['content'] )
+			     && is_array( $type_options['content'] )
+			     && is_array( $type_options['content']['options'] ) ) {
+				foreach ( $type_options['content']['options'] as $key => $label ) {
+					?>
+                    <label for="<?php echo esc_attr( $field['name'] ) ?>[content][<?php echo esc_attr( $key ) ?>]">
+						<?php echo $label ?>
+                    </label>
+                    <select name="<?php echo esc_attr( $field['name'] ) ?>[content][<?php echo esc_attr( $key ) ?>]">
+						<?php if ( $field['post_type_archive'] ) {
+							printf(
+								'<option value="%s" %s>Archive</option>',
+								$key . '_archive',
+								$field['value']['content'][ $key ] == $key . '_archive' ? 'selected' : null
+							);
+						} ?>
+
+						<?php $this_type = get_posts( array( 'post_type' => $key ) );
+						if ( $this_type && count( $this_type ) > 0
+						) {
+							if ( $field['post_type_archive'] ) {
+								echo '<option disabled>──────────</option>';
+							}
+							foreach ( $this_type as $post ) {
+								printf( '<option value="%s" %s>%s</option>',
+									$post->ID,
+									(int) $field['value']['content'][ $key ] == $post->ID ? 'selected' : null,
+									$post->post_title
+								);
+							}
+							// Can't be too careful
+							unset( $this_type );
+						} ?>
+                    </select>
+					<?php
+				}
+			}
+
+			/**
+			 * Select taxonomies, if there are taxonomies
+			 */
+			if ( isset( $type_options['taxonomies'] )
+			     && is_array( $type_options['taxonomies'] )
+			     && is_array( $type_options['taxonomies']['options'] ) ) {
+				foreach ( $type_options['taxonomies']['options'] as $key => $label ) {
+					?>
+                    <label for="<?php echo esc_attr( $field['name'] ) ?>[taxonomy][<?php echo esc_attr( $key ) ?>]">
+						<?php echo $label ?>
+                    </label>
+                    <select name="<?php echo esc_attr( $field['name'] ) ?>[taxonomy][<?php echo esc_attr( $key ) ?>]">
+						<?php $this_taxonomy = get_terms( array( 'taxonomy' => $key ) );
+						if ( $this_taxonomy && count( $this_taxonomy ) > 0
+						) {
+							foreach ( $this_taxonomy as $taxonomy ) {
+								/** @var $taxonomy \WP_Term */
+								printf( '<option value="%s" %s>%s</option>',
+									$taxonomy->term_taxonomy_id,
+									(int) $field['value']['taxonomy'][ $key ] == $taxonomy->term_taxonomy_id ? 'selected' : null,
+									$taxonomy->name
+								);
+							}
+							// Can't be too careful
+							unset( $this_taxonomy );
+						} ?>
+                    </select>
+					<?php
+				}
+			}
 
 			/*
-			*  Create a simple text input using the 'font_size' setting.
+			*  Email, if email is set
 			*/
+			if ( $type_options['email'] && is_string( $type_options['email'] ) ) {
+				?>
+                <label for="<?php echo esc_attr( $field['name'] ) ?>[email]"><?php echo $type_options['email']
+					?></label>
+                <input type="email" name="<?php echo esc_attr( $field['name'] ) ?>[email]"
+                       value="<?php echo esc_attr( $field['value']['email'] ) ?>"/>
+				<?php
+			}
 
-			?>
-            <input type="text" name="<?php echo esc_attr( $field['name'] ) ?>"
-                   value="<?php echo esc_attr( $field['value'] ) ?>"
-                   style="font-size:<?php echo $field['font_size'] ?>px;"/>
-			<?php
+			/*
+			*  External, if external is set
+			*/
+			if ( $type_options['external'] && is_string( $type_options['external'] ) ) {
+				?>
+                <label for="<?php echo esc_attr( $field['name'] ) ?>[external]"><?php echo $type_options['external']
+					?></label>
+                <input type="url" name="<?php echo esc_attr( $field['name'] ) ?>[external]"
+                       value="<?php echo esc_attr( $field['value']['external'] ) ?>"/>
+				<?php
+			}
+
+			/**
+			 * Set user class
+			 */
+			if ( $field['user_class'] ) {
+				?>
+                <label for="<?php echo esc_attr( $field['name'] ) ?>[user_class]">Class</label>
+                <input type="text" name="<?php echo esc_attr( $field['name'] ) ?>[user_class]"
+                       value="<?php echo esc_attr( $field['value']['user_class'] ) ?>">
+				<?php
+			} else {
+			    // Still submit this value, but make it null
+				?>
+                <input type="hidden" name="<?php echo esc_attr( $field['name'] ) ?>[user_class]"
+                       value="">
+				<?php
+			}
+
+			/**
+			 * Set user text
+			 */
+			if ( $field['user_text'] ) {
+				?>
+                <label for="<?php echo esc_attr( $field['name'] ) ?>[user_text]">Text</label>
+                <input type="text" name="<?php echo esc_attr( $field['name'] ) ?>[user_text]"
+                       value="<?php echo esc_attr( $field['value']['user_text'] ) ?>">
+				<?php
+			} else {
+				// Still submit this value, but make it the default text
+				?>
+                <input type="hidden" name="<?php echo esc_attr( $field['name'] ) ?>[user_text]"
+                       value="<?php echo esc_attr( $field['default_text'] ) ?>">
+				<?php
+			}
 		}
 
 
@@ -359,21 +673,17 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 		*  @return	$value
 		*/
 
-		/*
-
 		function update_value( $value, $post_id, $field ) {
 
 			return $value;
 
 		}
 
-		*/
-
 
 		/*
 		*  format_value()
 		*
-		*  This filter is appied to the $value after it is loaded from the db and before it is returned to the template
+		*  This filter is applied to the $value after it is loaded from the db and before it is returned to the template
 		*
 		*  @type	filter
 		*  @since	3.6
