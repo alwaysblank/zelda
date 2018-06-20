@@ -64,7 +64,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 				'user_text'         => false,
 				'email'             => false,
 				'external'          => false,
-				'external_new_tab'  => true,
+				'new_tab'           => true,
 			);
 
 
@@ -197,7 +197,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 			acf_render_field_setting( $field, array(
 				'label'        => __( 'Open in New Tab', 'acf-zelda' ),
 				'instructions' => __( 'Open external links in new tab?', 'acf-zelda' ),
-				'name'         => 'external_new_tab',
+				'name'         => 'new_tab',
 				'type'         => 'true_false',
 				'ui'           => 1,
 			) );
@@ -290,9 +290,10 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 								join( '', Arrays::mapKeys( function ( $value, $key ) use ( $field, $label ) {
 									return [
 										sprintf(
-											'<option value="%s" %s>%s</option>',
+											'<option value="%s/%s" %s>%s</option>',
+											$label['slug'],
 											$key,
-											$key == $field['value']['type'] ? 'selected' : null,
+											$label['slug'] . '/' . $key == $field['value']['type'] ? 'selected' : null,
 											$value
 										)
 									];
@@ -667,33 +668,64 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 		*
 		*  @return	$value (mixed) the modified value
 		*/
-
-		/*
-
 		function format_value( $value, $post_id, $field ) {
 
 			// bail early if no value
-			if( empty($value) ) {
+			if ( empty( $value ) ) {
 
 				return $value;
 
 			}
 
+			$type = explode( '/', $value['type'] );
 
-			// apply setting
-			if( $field['font_size'] > 12 ) {
+			$destination_raw = Arrays::pluck( $value, $type );
+			$destination     = false;
+			switch ( $type[0] ) {
+				case 'content' :
+					if ( strpos( $destination_raw, '_archive' ) > 0 ) {
+						$archive_name = explode( '_', $destination_raw );
+						$destination  = get_post_type_archive_link( $archive_name[0] );
+					} elseif ( is_numeric( $destination_raw ) ) {
+						$destination = get_permalink( intval( $destination_raw ) );
+					}
+					break;
+				case 'taxonomy':
+					if ( is_numeric( $destination_raw ) ) {
+						$destination = get_term_link( intval( $destination_raw ) );
+					}
+					break;
+				case 'email':
+					$destination = "mailto:{$destination_raw}";
+					break;
+				case 'external' :
+					$destination = $destination_raw;
+					break;
+			}
 
-				// format the value
-				// $value = 'something';
+			if ( $destination ) {
 
+				$class = trim( $value['user_class']
+					? esc_attr( $field['link_class'] . ' ' . $value['user_class'] )
+					: esc_attr( $field['link_class'] ) );
+
+				$target = $field['new_tab']
+					? 'target="_blank" rel="noopener noreferrer"'
+					: null;
+
+				return sprintf(
+					'<a href="%s" class="%s" %s>%s</a>',
+					esc_attr( $destination ),
+					esc_attr( $class ),
+					$target,
+					$value['user_text']
+				);
 			}
 
 
-			// return
-			return $value;
+			// Couldn't get a valid link
+			return null;
 		}
-
-		*/
 
 
 		/*
