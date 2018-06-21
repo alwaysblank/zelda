@@ -227,6 +227,11 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 			*  Review the data of $field.
 			*  This will show what data is available
 			 */
+			$stored       = $field['value'] ?? null;
+			$stored_type  = $stored['type'] ?? false;
+			$stored_value = $stored['value'] ?? false;
+			$stored_class = $stored['class'] ?? false;
+			$stored_text  = $stored['text'] ?? false;
 
 			/**
 			 * Generate a list of possible link types.
@@ -265,13 +270,6 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 				$type_options['external'] = "External";
 			}
 
-//			echo '<pre>';
-//			var_dump( $field );
-//
-//
-//			var_dump( $type_options );
-//			echo '</pre>';
-
 			/**
 			 * Generate some input fields.
 			 */
@@ -288,13 +286,13 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 							printf(
 								'<optgroup label="%s">%s</optgroup>',
 								$label['label'],
-								join( '', Arrays::mapKeys( function ( $value, $key ) use ( $field, $label ) {
+								join( '', Arrays::mapKeys( function ( $value, $key ) use ( $stored_type, $label ) {
 									return [
 										sprintf(
 											'<option value="%s/%s" %s>%s</option>',
 											$label['slug'],
 											$key,
-											$label['slug'] . '/' . $key == $field['value']['type'] ? 'selected' : null,
+											$label['slug'] . '/' . $key == $stored_type ? 'selected' : null,
 											$value
 										)
 									];
@@ -304,7 +302,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 							printf(
 								'<option value="%s" %s>%s</option>',
 								$option,
-								$option == $field['value']['type'] ? 'selected' : null,
+								$option == $stored_type ? 'selected' : null,
 								$label
 							);
 						}
@@ -330,7 +328,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 							printf(
 								'<option value="%s" %s>Archive</option>',
 								$key . '_archive',
-								$field['value']['content'][ $key ] == $key . '_archive' ? 'selected' : null
+								$stored_value == $key . '_archive' ? 'selected' : null
 							);
 						} ?>
 
@@ -343,7 +341,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 							foreach ( $this_type as $post ) {
 								printf( '<option value="%s" %s>%s</option>',
 									$post->ID,
-									(int) $field['value']['content'][ $key ] == $post->ID ? 'selected' : null,
+									intval( $stored_value ) == $post->ID ? 'selected' : null,
 									$post->post_title
 								);
 							}
@@ -367,6 +365,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 						<?php echo $label ?>
                     </label>
                     <select name="<?php echo esc_attr( $field['name'] ) ?>[taxonomy][<?php echo esc_attr( $key ) ?>]">
+                        <option value="placeholder"></option>
 						<?php $this_taxonomy = get_terms( array( 'taxonomy' => $key ) );
 						if ( $this_taxonomy && count( $this_taxonomy ) > 0
 						) {
@@ -374,7 +373,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 								/** @var $taxonomy \WP_Term */
 								printf( '<option value="%s" %s>%s</option>',
 									$taxonomy->term_taxonomy_id,
-									(int) $field['value']['taxonomy'][ $key ] == $taxonomy->term_taxonomy_id ? 'selected' : null,
+									intval( $stored_value ) == $taxonomy->term_taxonomy_id ? 'selected' : null,
 									$taxonomy->name
 								);
 							}
@@ -394,7 +393,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
                 <label for="<?php echo esc_attr( $field['name'] ) ?>[email]"><?php echo $type_options['email']
 					?></label>
                 <input type="email" name="<?php echo esc_attr( $field['name'] ) ?>[email]"
-                       value="<?php echo esc_attr( $field['value']['email'] ) ?>"/>
+                       value="<?php echo 'email' === $stored_type ? $stored_value : null; ?>"/>
 				<?php
 			}
 
@@ -406,7 +405,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
                 <label for="<?php echo esc_attr( $field['name'] ) ?>[external]"><?php echo $type_options['external']
 					?></label>
                 <input type="url" name="<?php echo esc_attr( $field['name'] ) ?>[external]"
-                       value="<?php echo esc_attr( $field['value']['external'] ) ?>"/>
+                       value="<?php echo 'external' === $stored_type ? $stored_value : null; ?>"/>
 				<?php
 			}
 
@@ -417,7 +416,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 				?>
                 <label for="<?php echo esc_attr( $field['name'] ) ?>[user_class]">Class</label>
                 <input type="text" name="<?php echo esc_attr( $field['name'] ) ?>[user_class]"
-                       value="<?php echo esc_attr( $field['value']['user_class'] ) ?>">
+                       value="<?php echo $stored_class; ?>">
 				<?php
 			} else {
 				// Still submit this value, but make it null
@@ -434,7 +433,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 				?>
                 <label for="<?php echo esc_attr( $field['name'] ) ?>[user_text]">Text</label>
                 <input type="text" name="<?php echo esc_attr( $field['name'] ) ?>[user_text]"
-                       value="<?php echo esc_attr( $field['value']['user_text'] ) ?>">
+                       value="<?php echo $stored_text ?>">
 				<?php
 			} else {
 				// Still submit this value, but make it the default text
@@ -632,6 +631,26 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 
 		*/
 
+		/**
+		 * Get the value for the data type.
+		 *
+		 * @param $type (string)
+		 * @param $data (array)
+		 *
+		 * @return bool|mixed
+		 */
+		function get_type_value_from_form( $type, $data ) {
+			if ( ! is_string( $type ) || ! is_array( $data ) ) {
+				return false;
+			}
+
+			$directions = explode( '/', $type );
+
+			$return = Arrays::pluck( $data, $directions, true );
+
+			return null !== $return ? $return : false;
+		}
+
 
 		/*
 		*  update_value()
@@ -649,9 +668,14 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 		*/
 
 		function update_value( $value, $post_id, $field ) {
+			$destination = $this->get_type_value_from_form( $value['type'], $value );
 
-			return $value;
-
+			return array(
+				'type'  => $value['type'],
+				'value' => $destination,
+				'class' => $value['user_class'] ?? false,
+				'text'  => $value['user_text'] ?? false,
+			);
 		}
 
 
@@ -681,7 +705,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 
 			$type = explode( '/', $value['type'] );
 
-			$destination_raw = Arrays::pluck( $value, $type );
+			$destination_raw = $value['value'];
 			$destination     = false;
 			switch ( $type[0] ) {
 				case 'content' :
@@ -707,8 +731,8 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 
 			if ( $destination ) {
 
-				$class = trim( $value['user_class']
-					? esc_attr( $field['link_class'] . ' ' . $value['user_class'] )
+				$class = trim( $value['class']
+					? esc_attr( $field['link_class'] . ' ' . $value['class'] )
 					: esc_attr( $field['link_class'] ) );
 
 				$target = $field['new_tab']
@@ -720,7 +744,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 					esc_attr( $destination ),
 					esc_attr( $class ),
 					$target,
-					$value['user_text']
+					$value['text']
 				);
 			}
 
@@ -794,6 +818,18 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 
 				return false;
 			};
+
+			if ( ! empty( $value['user_class'] ) ) {
+				if ( 1 !== preg_match( '/^[a-zA-Z_\-0-9 ]*$/m', $value['user_class'] ) ) {
+					return __( 'Enter valid class names.', 'acf-zelda' );
+				}
+			}
+
+			if ( ! empty( $value['user_text'] ) ) {
+				if ( wp_kses_post( $value['user_text'] ) !== $value['user_text'] ) {
+					return __( 'Enter valid link text.', 'acf-zelda' );
+				}
+			}
 
 			$type        = explode( '/', $value['type'] );
 			$destination = Arrays::pluck( $value, $type );
