@@ -265,12 +265,12 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 				$type_options['external'] = "External";
 			}
 
-			echo '<pre>';
-			var_dump( $field );
-
-
-			var_dump( $type_options );
-			echo '</pre>';
+//			echo '<pre>';
+//			var_dump( $field );
+//
+//
+//			var_dump( $type_options );
+//			echo '</pre>';
 
 			/**
 			 * Generate some input fields.
@@ -281,6 +281,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 			 */
 			if ( is_array( $type_options ) && count( $type_options ) > 0 ) {
 				?>
+                <label for="<?php echo esc_attr( $field['name'] ) ?>[type]">Type</label>
                 <select name="<?php echo esc_attr( $field['name'] ) ?>[type]">
 					<?php foreach ( $type_options as $option => $label ) {
 						if ( is_array( $label ) ) {
@@ -324,7 +325,8 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 						<?php echo $label ?>
                     </label>
                     <select name="<?php echo esc_attr( $field['name'] ) ?>[content][<?php echo esc_attr( $key ) ?>]">
-						<?php if ( $field['post_type_archive'] ) {
+                        <option value="placeholder"></option>
+						<?php if ( $field['post_type_archive'] && get_post_type_archive_link( $key ) ) {
 							printf(
 								'<option value="%s" %s>Archive</option>',
 								$key . '_archive',
@@ -335,7 +337,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 						<?php $this_type = get_posts( array( 'post_type' => $key ) );
 						if ( $this_type && count( $this_type ) > 0
 						) {
-							if ( $field['post_type_archive'] ) {
+							if ( $field['post_type_archive'] && get_post_type_archive_link( $key ) ) {
 								echo '<option disabled>──────────</option>';
 							}
 							foreach ( $this_type as $post ) {
@@ -746,30 +748,99 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 		*  @return	$valid
 		*/
 
-		/*
+		function validate_value( $valid, $value, $field, $input ) {
 
-		function validate_value( $valid, $value, $field, $input ){
+			$valid_number = function ( $possible_number ) {
+				return is_numeric( $possible_number );
+			};
 
-			// Basic usage
-			if( $value < $field['custom_minimum_setting'] )
-			{
-				$valid = false;
+			$valid_archive = function ( $possible_archive ) {
+				$archive_raw = explode( '_', $possible_archive );
+				if ( count( $archive_raw ) >= 2 ) {
+					if ( get_post_type_archive_link( $archive_raw[0] ) ) {
+						return true;
+					}
+				}
+
+				return false;
+			};
+
+			/**
+			 * Assumes we've already checked that $possible_post is a number.
+			 *
+			 * @param $possible_post
+			 *
+			 * @return bool
+			 */
+			$valid_post = function ( $possible_post ) {
+				if ( get_permalink( intval( $possible_post ) ) ) {
+					return true;
+				}
+
+				return false;
+			};
+
+			/**
+			 * Assumes we've already checked that $possible_taxonomy is a number.
+			 *
+			 * @param $possible_taxonomy
+			 *
+			 * @return bool
+			 */
+			$valid_taxonomy = function ( $possible_taxonomy ) {
+				if ( get_term( intval( $possible_taxonomy ) ) ) {
+					return true;
+				}
+
+				return false;
+			};
+
+			$type        = explode( '/', $value['type'] );
+			$destination = Arrays::pluck( $value, $type );
+
+			switch ( $type[0] ) {
+				case 'content':
+					if ( $valid_archive( $destination ) ) {
+						return true;
+					} elseif ( $valid_number( $destination ) && $valid_post( $destination ) ) {
+						return true;
+					}
+
+					return __( 'Enter a valid content item.', 'acf-zelda' );
+					break;
+
+				case 'taxonomy':
+					if ( $valid_number( $destination ) && $valid_taxonomy( $destination ) ) {
+						return true;
+					}
+
+					return __( 'Enter a valid taxonomy.', 'acf-zelda' );
+					break;
+
+				case 'email':
+					$emails = explode( ',', $destination );
+					foreach ( $emails as $email ) {
+						if ( ! filter_var( $email, FILTER_VALIDATE_EMAIL ) ) {
+							return sprintf( __( 'This email address is invalid: %s', 'my-text-domain' ), esc_html( $email ) );
+						}
+					}
+
+					return true;
+					break;
+
+				case 'external':
+					if ( filter_var( $destination, FILTER_VALIDATE_URL ) ) {
+						return true;
+					}
+
+					return __( 'Enter a valid URL.', 'acf-zelda' );
+					break;
+
+				default:
+					return false;
+					break;
 			}
-
-
-			// Advanced usage
-			if( $value < $field['custom_minimum_setting'] )
-			{
-				$valid = __('The value is too little!','acf-zelda'),
-			}
-
-
-			// return
-			return $valid;
-
 		}
-
-		*/
 
 
 		/*
