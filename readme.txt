@@ -1,9 +1,8 @@
 === Advanced Custom Fields: Zelda Field ===
 Contributors: Ben Martinez-Bateman
 Tags: acf, wordpress, link
-Requires at least: 3.6.0
-Tested up to: 4.9.0
-Stable tag: trunk
+Requires at least: 4.0.0
+Tested up to: 0.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,5 +27,5 @@ This ACF field type is compatible with:
 
 == Changelog ==
 
-= 1.0.0 =
-* Initial Release.
+= 0.0.1 =
+* Initial functionality. Not recommended for production use.

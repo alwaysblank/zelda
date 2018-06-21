@@ -4,7 +4,7 @@
 Plugin Name: Advanced Custom Fields: Zelda
 Plugin URI: https://github.com/alwaysblank/zelda
 Description: More flexible, less fragile: Better link selection.
-Version: 0.0.1-alpha
+Version: 0.0.1
 Author: Ben Martinez-Bateman
 Author URI: https://www.alwaysblank.org
 License: GPLv2 or later
@@ -33,7 +33,7 @@ class livy_acf_plugin_zelda {
 	*
 	*  @type	function
 	*  @date	17/02/2016
-	*  @since	1.0.0
+	*  @since	0.0.1
 	*
 	*  @param	void
 	*  @return	void
@@ -44,7 +44,7 @@ class livy_acf_plugin_zelda {
 		// settings
 		// - these will be passed into the field class.
 		$this->settings = array(
-			'version'	=> '1.0.0',
+			'version'	=> '0.0.1',
 			'url'		=> plugin_dir_url( __FILE__ ),
 			'path'		=> plugin_dir_path( __FILE__ )
 		);
@@ -63,7 +63,7 @@ class livy_acf_plugin_zelda {
 	*
 	*  @type	function
 	*  @date	17/02/2016
-	*  @since	1.0.0
+	*  @since	0.0.1
 	*
 	*  @param	$version (int) major ACF version. Defaults to 4
 	*  @return	void
