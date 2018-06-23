@@ -1,0 +1,19 @@
+.acf-field-zelda [hidden] {
+    display: none;
+}
+
+.acf-field-zelda .acf-input {
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+}
+
+@media (min-width: 768px) {
+    .acf-field-zelda .acf-input {
+        flex-direction: row;
+    }
+}
+
+.acf-field-zelda .acf-input > * {
+    padding: 5px;
+}

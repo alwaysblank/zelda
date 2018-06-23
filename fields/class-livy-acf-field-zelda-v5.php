@@ -279,144 +279,162 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 			 */
 			if ( is_array( $type_options ) && count( $type_options ) > 0 ) {
 				?>
-                <label for="<?php echo esc_attr( $field['name'] ) ?>[type]">Type</label>
-                <select name="<?php echo esc_attr( $field['name'] ) ?>[type]">
-					<?php foreach ( $type_options as $option => $label ) {
-						if ( is_array( $label ) ) {
-							printf(
-								'<optgroup label="%s">%s</optgroup>',
-								$label['label'],
-								join( '', Arrays::mapKeys( function ( $value, $key ) use ( $stored_type, $label ) {
-									return [
-										sprintf(
-											'<option value="%s/%s" %s>%s</option>',
-											$label['slug'],
-											$key,
-											$label['slug'] . '/' . $key == $stored_type ? 'selected' : null,
-											$value
-										)
-									];
-								}, $label['options'] )
-								) );
-						} elseif ( is_string( $label ) ) {
-							printf(
-								'<option value="%s" %s>%s</option>',
-								$option,
-								$option == $stored_type ? 'selected' : null,
-								$label
-							);
-						}
-					} ?>
-                </select>
+                <div class="acf-field-zelda__typeSelect">
+                    <label for="<?php echo esc_attr( $field['name'] ) ?>[type]">Type</label>
+                    <select name="<?php echo esc_attr( $field['name'] ) ?>[type]">
+						<?php foreach ( $type_options as $option => $label ) {
+							if ( is_array( $label ) ) {
+								printf(
+									'<optgroup label="%s">%s</optgroup>',
+									$label['label'],
+									join( '', Arrays::mapKeys( function ( $value, $key ) use ( $stored_type, $label ) {
+										return [
+											sprintf(
+												'<option value="%s/%s" %s>%s</option>',
+												$label['slug'],
+												$key,
+												$label['slug'] . '/' . $key == $stored_type ? 'selected' : null,
+												$value
+											)
+										];
+									}, $label['options'] )
+									) );
+							} elseif ( is_string( $label ) ) {
+								printf(
+									'<option value="%s" %s>%s</option>',
+									$option,
+									$option == $stored_type ? 'selected' : null,
+									$label
+								);
+							}
+						} ?>
+                    </select>
+                </div>
 				<?php
 			}
 
 			/**
 			 * Select the content, if there is content
 			 */
-			if ( isset( $type_options['content'] )
-			     && is_array( $type_options['content'] )
-			     && is_array( $type_options['content']['options'] ) ) {
-				foreach ( $type_options['content']['options'] as $key => $label ) {
-					?>
-                    <label for="<?php echo esc_attr( $field['name'] ) ?>[content][<?php echo esc_attr( $key ) ?>]">
-						<?php echo $label ?>
-                    </label>
-                    <select name="<?php echo esc_attr( $field['name'] ) ?>[content][<?php echo esc_attr( $key ) ?>]">
-                        <option value="placeholder"></option>
-						<?php if ( $field['post_type_archive'] && get_post_type_archive_link( $key ) ) {
-							printf(
-								'<option value="%s" %s>Archive</option>',
-								$key . '_archive',
-								$stored_value == $key . '_archive' ? 'selected' : null
-							);
-						} ?>
+			?>
+            <fieldset class="acf-field-zelda__contentSelect">
+				<?php if ( isset( $type_options['content'] )
+				           && is_array( $type_options['content'] )
+				           && is_array( $type_options['content']['options'] ) ) { ?>
+                    <div class="acf-field-zelda__postTypes .acf-field-zelda__contentWrap" data-zelda-type="content">
+						<?php foreach ( $type_options['content']['options'] as $key => $label ) { ?>
+                            <div class="acf-field-zelda__postType acf-field-zelda__fieldWrap" data-zelda-type="<?php echo esc_attr( $key ) ?>" hidden>
+                                <label for="<?php echo esc_attr( $field['name'] ) ?>[content][<?php echo esc_attr( $key ) ?>]">
+									<?php echo $label ?>
+                                </label>
+                                <select name="<?php echo esc_attr( $field['name'] ) ?>[content][<?php echo esc_attr( $key ) ?>]" data-zelda-field>
+                                    <option value="placeholder"></option>
+									<?php if ( $field['post_type_archive'] && get_post_type_archive_link( $key ) ) {
+										printf(
+											'<option value="%s" %s>Archive</option>',
+											$key . '_archive',
+											$stored_value == $key . '_archive' ? 'selected' : null
+										);
+									} ?>
 
-						<?php $this_type = get_posts( array( 'post_type' => $key ) );
-						if ( $this_type && count( $this_type ) > 0
-						) {
-							if ( $field['post_type_archive'] && get_post_type_archive_link( $key ) ) {
-								echo '<option disabled>──────────</option>';
-							}
-							foreach ( $this_type as $post ) {
-								printf( '<option value="%s" %s>%s</option>',
-									$post->ID,
-									intval( $stored_value ) == $post->ID ? 'selected' : null,
-									$post->post_title
-								);
-							}
-							// Can't be too careful
-							unset( $this_type );
+									<?php $this_type = get_posts( array( 'post_type' => $key ) );
+									if ( $this_type && count( $this_type ) > 0
+									) {
+										if ( $field['post_type_archive'] && get_post_type_archive_link( $key ) ) {
+											echo '<option disabled>──────────</option>';
+										}
+										foreach ( $this_type as $post ) {
+											printf( '<option value="%s" %s>%s</option>',
+												$post->ID,
+												intval( $stored_value ) == $post->ID ? 'selected' : null,
+												$post->post_title
+											);
+										}
+										// Can't be too careful
+										unset( $this_type );
+									} ?>
+                                </select>
+                            </div>
+						<?php } ?>
+                    </div>
+				<?php }
+
+				/**
+				 * Select taxonomies, if there are taxonomies
+				 */
+				if ( isset( $type_options['taxonomies'] )
+				     && is_array( $type_options['taxonomies'] )
+				     && is_array( $type_options['taxonomies']['options'] ) ) { ?>
+                    <div class="acf-field-zelda__taxonomies .acf-field-zelda__contentWrap" data-zelda-type="taxonomy">
+						<?php foreach ( $type_options['taxonomies']['options'] as $key => $label ) {
+							?>
+                            <div class="acf-field-zelda__taxonomy acf-field-zelda__fieldWrap" data-zelda-type="<?php echo esc_attr( $key ) ?>" hidden>
+                                <label for="<?php echo esc_attr( $field['name'] ) ?>[taxonomy][<?php echo esc_attr( $key ) ?>]">
+									<?php echo $label ?>
+                                </label>
+                                <select name="<?php echo esc_attr( $field['name'] ) ?>[taxonomy][<?php echo esc_attr( $key ) ?>]" data-zelda-field>
+                                    <option value="placeholder"></option>
+									<?php $this_taxonomy = get_terms( array( 'taxonomy' => $key ) );
+									if ( $this_taxonomy && count( $this_taxonomy ) > 0
+									) {
+										foreach ( $this_taxonomy as $taxonomy ) {
+											/** @var $taxonomy \WP_Term */
+											printf( '<option value="%s" %s>%s</option>',
+												$taxonomy->term_taxonomy_id,
+												intval( $stored_value ) == $taxonomy->term_taxonomy_id ? 'selected' : null,
+												$taxonomy->name
+											);
+										}
+										// Can't be too careful
+										unset( $this_taxonomy );
+									} ?>
+                                </select>
+                            </div>
+							<?php
 						} ?>
-                    </select>
+                    </div>
 					<?php
 				}
-			}
 
-			/**
-			 * Select taxonomies, if there are taxonomies
-			 */
-			if ( isset( $type_options['taxonomies'] )
-			     && is_array( $type_options['taxonomies'] )
-			     && is_array( $type_options['taxonomies']['options'] ) ) {
-				foreach ( $type_options['taxonomies']['options'] as $key => $label ) {
+				/*
+				*  Email, if email is set
+				*/
+				if ( $type_options['email'] && is_string( $type_options['email'] ) ) {
 					?>
-                    <label for="<?php echo esc_attr( $field['name'] ) ?>[taxonomy][<?php echo esc_attr( $key ) ?>]">
-						<?php echo $label ?>
-                    </label>
-                    <select name="<?php echo esc_attr( $field['name'] ) ?>[taxonomy][<?php echo esc_attr( $key ) ?>]">
-                        <option value="placeholder"></option>
-						<?php $this_taxonomy = get_terms( array( 'taxonomy' => $key ) );
-						if ( $this_taxonomy && count( $this_taxonomy ) > 0
-						) {
-							foreach ( $this_taxonomy as $taxonomy ) {
-								/** @var $taxonomy \WP_Term */
-								printf( '<option value="%s" %s>%s</option>',
-									$taxonomy->term_taxonomy_id,
-									intval( $stored_value ) == $taxonomy->term_taxonomy_id ? 'selected' : null,
-									$taxonomy->name
-								);
-							}
-							// Can't be too careful
-							unset( $this_taxonomy );
-						} ?>
-                    </select>
+                    <div class="acf-field-zelda__email acf-field-zelda__fieldWrap" data-zelda-type="email" hidden>
+                        <label for="<?php echo esc_attr( $field['name'] ) ?>[email]"><?php echo $type_options['email']
+							?></label>
+                        <input data-zelda-field type="email" name="<?php echo esc_attr( $field['name'] ) ?>[email]"
+                               value="<?php echo 'email' === $stored_type ? $stored_value : null; ?>"/>
+                    </div>
 					<?php
 				}
-			}
 
-			/*
-			*  Email, if email is set
-			*/
-			if ( $type_options['email'] && is_string( $type_options['email'] ) ) {
-				?>
-                <label for="<?php echo esc_attr( $field['name'] ) ?>[email]"><?php echo $type_options['email']
-					?></label>
-                <input type="email" name="<?php echo esc_attr( $field['name'] ) ?>[email]"
-                       value="<?php echo 'email' === $stored_type ? $stored_value : null; ?>"/>
-				<?php
-			}
-
-			/*
-			*  External, if external is set
-			*/
-			if ( $type_options['external'] && is_string( $type_options['external'] ) ) {
-				?>
-                <label for="<?php echo esc_attr( $field['name'] ) ?>[external]"><?php echo $type_options['external']
-					?></label>
-                <input type="url" name="<?php echo esc_attr( $field['name'] ) ?>[external]"
-                       value="<?php echo 'external' === $stored_type ? $stored_value : null; ?>"/>
-				<?php
-			}
-
+				/*
+				*  External, if external is set
+				*/
+				if ( $type_options['external'] && is_string( $type_options['external'] ) ) {
+					?>
+                    <div class="acf-field-zelda__external acf-field-zelda__fieldWrap" data-zelda-type="external" hidden>
+                        <label for="<?php echo esc_attr( $field['name'] ) ?>[external]"><?php echo $type_options['external']
+							?></label>
+                        <input data-zelda-field type="url" name="<?php echo esc_attr( $field['name'] ) ?>[external]"
+                               value="<?php echo 'external' === $stored_type ? $stored_value : null; ?>"/>
+                    </div>
+					<?php
+				} ?>
+            </fieldset>
+			<?php
 			/**
 			 * Set user class
 			 */
 			if ( $field['user_class'] ) {
 				?>
-                <label for="<?php echo esc_attr( $field['name'] ) ?>[user_class]">Class</label>
-                <input type="text" name="<?php echo esc_attr( $field['name'] ) ?>[user_class]"
-                       value="<?php echo $stored_class; ?>">
+                <div class="acf-field-zelda__userClass">
+                    <label for="<?php echo esc_attr( $field['name'] ) ?>[user_class]">Class</label>
+                    <input data-zelda-field type="text" name="<?php echo esc_attr( $field['name'] ) ?>[user_class]"
+                           value="<?php echo $stored_class; ?>">
+                </div>
 				<?php
 			} else {
 				// Still submit this value, but make it null
@@ -431,9 +449,11 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 			 */
 			if ( $field['user_text'] ) {
 				?>
-                <label for="<?php echo esc_attr( $field['name'] ) ?>[user_text]">Text</label>
-                <input type="text" name="<?php echo esc_attr( $field['name'] ) ?>[user_text]"
-                       value="<?php echo $stored_text ?>">
+                <div class="acf-field-zelda__userText">
+                    <label for="<?php echo esc_attr( $field['name'] ) ?>[user_text]">Text</label>
+                    <input data-zelda-field type="text" name="<?php echo esc_attr( $field['name'] ) ?>[user_text]"
+                           value="<?php echo $stored_text ?>">
+                </div>
 				<?php
 			} else {
 				// Still submit this value, but make it the default text
@@ -459,27 +479,23 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 		*  @return	n/a
 		*/
 
-		/*
-
 		function input_admin_enqueue_scripts() {
 
 			// vars
-			$url = $this->settings['url'];
+			$url     = $this->settings['url'];
 			$version = $this->settings['version'];
 
 
 			// register & include JS
-			wp_register_script('acf-zelda', "{$url}assets/js/input.js", array('acf-input'), $version);
-			wp_enqueue_script('acf-zelda');
+			wp_register_script( 'acf-zelda', "{$url}assets/js/input.js", array( 'acf-input' ), $version );
+			wp_enqueue_script( 'acf-zelda' );
 
 
 			// register & include CSS
-			wp_register_style('acf-zelda', "{$url}assets/css/input.css", array('acf-input'), $version);
-			wp_enqueue_style('acf-zelda');
+			wp_register_style( 'acf-zelda', "{$url}assets/css/input.css", array( 'acf-input' ), $version );
+			wp_enqueue_style( 'acf-zelda' );
 
 		}
-
-		*/
 
 
 		/*
