@@ -19,7 +19,7 @@ This ACF field type is compatible with:
 * ACF 5
 
 It requires:
-* PHP >= 7
+* PHP >= 7.1
 
 == Installation ==
 
