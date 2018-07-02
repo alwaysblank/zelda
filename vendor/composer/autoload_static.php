@@ -4,12 +4,16 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitf8bddd86cd2b24f3178c7acba25e0d9b
+class ComposerStaticInit7579b4dda840f2bbbb29e3a34013213d
 {
     public static $prefixLengthsPsr4 = array (
         'Z' => 
         array (
             'Zenodorus\\' => 10,
+        ),
+        'L' => 
+        array (
+            'Livy\\Zelda\\' => 11,
         ),
     );
 
@@ -18,13 +22,17 @@ class ComposerStaticInitf8bddd86cd2b24f3178c7acba25e0d9b
         array (
             0 => __DIR__ . '/..' . '/zenodorus/arrays/src',
         ),
+        'Livy\\Zelda\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src',
+        ),
     );
 
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitf8bddd86cd2b24f3178c7acba25e0d9b::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitf8bddd86cd2b24f3178c7acba25e0d9b::$prefixDirsPsr4;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit7579b4dda840f2bbbb29e3a34013213d::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit7579b4dda840f2bbbb29e3a34013213d::$prefixDirsPsr4;
 
         }, null, ClassLoader::class);
     }

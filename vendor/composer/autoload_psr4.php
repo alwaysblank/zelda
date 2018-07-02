@@ -7,4 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Zenodorus\\' => array($vendorDir . '/zenodorus/arrays/src'),
+    'Livy\\Zelda\\' => array($baseDir . '/src'),
 );

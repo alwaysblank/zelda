@@ -18,6 +18,9 @@ of content in a better, safer way. It also allows you to define a bit of link me
 This ACF field type is compatible with:
 * ACF 5
 
+It requires:
+* PHP >= 7
+
 == Installation ==
 
 1. Copy the `acf-zelda` folder into your `wp-content/plugins` folder

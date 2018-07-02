@@ -1,5 +1,8 @@
 <?php
 
+use Livy\Zelda\{
+	Settings
+};
 use Zenodorus\Arrays;
 
 // exit if accessed directly
@@ -29,59 +32,14 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 
 		function __construct( $settings ) {
 
-			/*
-			*  name (string) Single word, no spaces. Underscores allowed
-			*/
+			/**
+			 * Apply field settings and defaults.
+			 */
+			Settings::apply( $this );
 
-			$this->name = 'zelda';
-
-
-			/*
-			*  label (string) Multiple words, can include spaces, visible when selecting a field type
-			*/
-
-			$this->label = __( 'Zelda', 'acf-zelda' );
-
-
-			/*
-			*  category (string) basic | content | choice | relational | jquery | layout | CUSTOM GROUP NAME
-			*/
-
-			$this->category = 'relational';
-
-
-			/*
-			*  defaults (array) Array of default settings which are merged into the field object. These are used later in settings
-			*/
-
-			$this->defaults = array(
-				'post_type'         => false,
-				'post_type_archive' => false,
-				'taxonomy'          => false,
-				'link_class'        => null,
-				'user_class'        => false,
-				'default_text'      => "Read More",
-				'user_text'         => false,
-				'email'             => false,
-				'external'          => false,
-				'new_tab'           => true,
-			);
-
-
-			/*
-			*  l10n (array) Array of strings that are used in JavaScript. This allows JS strings to be translated in PHP and loaded via:
-			*  var message = acf._e('zelda', 'error');
-			*/
-
-			$this->l10n = array(
-				'error' => __( 'Error! Please enter a higher value', 'acf-zelda' ),
-			);
-
-
-			/*
-			*  settings (array) Store plugin settings (url, path, version) as a reference for later use with assets
-			*/
-
+			/**
+			 * Set settings passed to this object.
+			 */
 			$this->settings = $settings;
 
 
@@ -323,11 +281,13 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 				           && is_array( $type_options['content']['options'] ) ) { ?>
                     <div class="acf-field-zelda__postTypes .acf-field-zelda__contentWrap" data-zelda-type="content">
 						<?php foreach ( $type_options['content']['options'] as $key => $label ) { ?>
-                            <div class="acf-field-zelda__postType acf-field-zelda__fieldWrap" data-zelda-type="<?php echo esc_attr( $key ) ?>" hidden>
+                            <div class="acf-field-zelda__postType acf-field-zelda__fieldWrap"
+                                 data-zelda-type="<?php echo esc_attr( $key ) ?>" hidden>
                                 <label for="<?php echo esc_attr( $field['name'] ) ?>[content][<?php echo esc_attr( $key ) ?>]">
 									<?php echo $label ?>
                                 </label>
-                                <select name="<?php echo esc_attr( $field['name'] ) ?>[content][<?php echo esc_attr( $key ) ?>]" data-zelda-field>
+                                <select name="<?php echo esc_attr( $field['name'] ) ?>[content][<?php echo esc_attr( $key ) ?>]"
+                                        data-zelda-field>
                                     <option value="placeholder"></option>
 									<?php if ( $field['post_type_archive'] && get_post_type_archive_link( $key ) ) {
 										printf(
@@ -368,11 +328,13 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
                     <div class="acf-field-zelda__taxonomies .acf-field-zelda__contentWrap" data-zelda-type="taxonomy">
 						<?php foreach ( $type_options['taxonomies']['options'] as $key => $label ) {
 							?>
-                            <div class="acf-field-zelda__taxonomy acf-field-zelda__fieldWrap" data-zelda-type="<?php echo esc_attr( $key ) ?>" hidden>
+                            <div class="acf-field-zelda__taxonomy acf-field-zelda__fieldWrap"
+                                 data-zelda-type="<?php echo esc_attr( $key ) ?>" hidden>
                                 <label for="<?php echo esc_attr( $field['name'] ) ?>[taxonomy][<?php echo esc_attr( $key ) ?>]">
 									<?php echo $label ?>
                                 </label>
-                                <select name="<?php echo esc_attr( $field['name'] ) ?>[taxonomy][<?php echo esc_attr( $key ) ?>]" data-zelda-field>
+                                <select name="<?php echo esc_attr( $field['name'] ) ?>[taxonomy][<?php echo esc_attr( $key ) ?>]"
+                                        data-zelda-field>
                                     <option value="placeholder"></option>
 									<?php $this_taxonomy = get_terms( array( 'taxonomy' => $key ) );
 									if ( $this_taxonomy && count( $this_taxonomy ) > 0
