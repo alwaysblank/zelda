@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "513e14ebcf5fa072e2c2f8e3925a8225",
+    "content-hash": "22883f2477d74240b074f360af15f8e6",
     "packages": [
         {
             "name": "zenodorus/arrays",
@@ -1369,7 +1369,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^7.0"
+        "php": "^7.1"
     },
     "platform-dev": []
 }
