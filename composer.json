@@ -1,7 +1,8 @@
 {
   "require": {
     "php": "^7.1",
-    "zenodorus/arrays": "^1.2"
+    "zenodorus/arrays": "^1.2",
+    "zenodorus/strings": "^1.0"
   },
   "autoload": {
     "psr-4": {

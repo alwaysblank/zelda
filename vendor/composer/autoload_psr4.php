@@ -6,6 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Zenodorus\\' => array($vendorDir . '/zenodorus/arrays/src'),
+    'Zenodorus\\' => array($vendorDir . '/zenodorus/arrays/src', $vendorDir . '/zenodorus/strings/src'),
     'Livy\\Zelda\\' => array($baseDir . '/src'),
 );

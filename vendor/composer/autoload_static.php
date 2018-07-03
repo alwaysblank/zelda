@@ -21,6 +21,7 @@ class ComposerStaticInitf89c39dce70294ee6643264386d40ce4
         'Zenodorus\\' => 
         array (
             0 => __DIR__ . '/..' . '/zenodorus/arrays/src',
+            1 => __DIR__ . '/..' . '/zenodorus/strings/src',
         ),
         'Livy\\Zelda\\' => 
         array (

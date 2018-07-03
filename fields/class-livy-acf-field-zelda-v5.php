@@ -1,7 +1,7 @@
 <?php
 
 use Livy\Zelda\{
-	Settings
+	Output, Settings
 };
 use Zenodorus\Arrays;
 
@@ -681,54 +681,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 
 			}
 
-			$type = explode( '/', $value['type'] );
-
-			$destination_raw = $value['value'];
-			$destination     = false;
-			switch ( $type[0] ) {
-				case 'content' :
-					if ( strpos( $destination_raw, '_archive' ) > 0 ) {
-						$archive_name = explode( '_', $destination_raw );
-						$destination  = get_post_type_archive_link( $archive_name[0] );
-					} elseif ( is_numeric( $destination_raw ) ) {
-						$destination = get_permalink( intval( $destination_raw ) );
-					}
-					break;
-				case 'taxonomy':
-					if ( is_numeric( $destination_raw ) ) {
-						$destination = get_term_link( intval( $destination_raw ) );
-					}
-					break;
-				case 'email':
-					$destination = "mailto:{$destination_raw}";
-					break;
-				case 'external' :
-					$destination = $destination_raw;
-					break;
-			}
-
-			if ( $destination ) {
-
-				$class = trim( $value['class']
-					? esc_attr( $field['link_class'] . ' ' . $value['class'] )
-					: esc_attr( $field['link_class'] ) );
-
-				$target = $field['new_tab']
-					? 'target="_blank" rel="noopener noreferrer"'
-					: null;
-
-				return sprintf(
-					'<a href="%s" class="%s" %s>%s</a>',
-					esc_attr( $destination ),
-					esc_attr( $class ),
-					$target,
-					$value['text']
-				);
-			}
-
-
-			// Couldn't get a valid link
-			return null;
+			return Output::make($value, $field, $post_id)->element();
 		}
 
 
@@ -835,7 +788,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 					$emails = explode( ',', $destination );
 					foreach ( $emails as $email ) {
 						if ( ! filter_var( $email, FILTER_VALIDATE_EMAIL ) ) {
-							return sprintf( __( 'This email address is invalid: %s', 'my-text-domain' ), esc_html( $email ) );
+							return sprintf( __( 'This email address is invalid: %s', 'acf-zelda' ), esc_html( $email ) );
 						}
 					}
 

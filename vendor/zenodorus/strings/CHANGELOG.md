@@ -7,28 +7,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [1.2.1] - 2018-07-02
-
-### Fixed
-
-- Removed VS Code files.
-
-## [1.2.0] - 2018-04-06
-
-### Added
-
-- `mapKeys()` method for doing `array_map` but with access to keys.
-
-## [1.1.1] - 2018-04-03
-
-### Added
-
-- `compact()` method for removing falsey values.
-
-### Changed 
-
-- Reintegrated `deleteVyValue()` method that had somehow been removed.
-
 ## [1.0.0] - 2017-10-24
 
 ### Added
