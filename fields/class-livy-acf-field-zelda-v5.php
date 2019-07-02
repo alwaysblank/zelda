@@ -323,11 +323,13 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 				           && is_array( $type_options['content']['options'] ) ) { ?>
                     <div class="acf-field-zelda__postTypes .acf-field-zelda__contentWrap" data-zelda-type="content">
 						<?php foreach ( $type_options['content']['options'] as $key => $label ) { ?>
-                            <div class="acf-field-zelda__postType acf-field-zelda__fieldWrap" data-zelda-type="<?php echo esc_attr( $key ) ?>" hidden>
+                            <div class="acf-field-zelda__postType acf-field-zelda__fieldWrap"
+                                 data-zelda-type="<?php echo esc_attr( $key ) ?>" hidden>
                                 <label for="<?php echo esc_attr( $field['name'] ) ?>[content][<?php echo esc_attr( $key ) ?>]">
 									<?php echo $label ?>
                                 </label>
-                                <select name="<?php echo esc_attr( $field['name'] ) ?>[content][<?php echo esc_attr( $key ) ?>]" data-zelda-field>
+                                <select name="<?php echo esc_attr( $field['name'] ) ?>[content][<?php echo esc_attr( $key ) ?>]"
+                                        data-zelda-field>
                                     <option value="placeholder"></option>
 									<?php if ( $field['post_type_archive'] && get_post_type_archive_link( $key ) ) {
 										printf(
@@ -368,11 +370,13 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
                     <div class="acf-field-zelda__taxonomies .acf-field-zelda__contentWrap" data-zelda-type="taxonomy">
 						<?php foreach ( $type_options['taxonomies']['options'] as $key => $label ) {
 							?>
-                            <div class="acf-field-zelda__taxonomy acf-field-zelda__fieldWrap" data-zelda-type="<?php echo esc_attr( $key ) ?>" hidden>
+                            <div class="acf-field-zelda__taxonomy acf-field-zelda__fieldWrap"
+                                 data-zelda-type="<?php echo esc_attr( $key ) ?>" hidden>
                                 <label for="<?php echo esc_attr( $field['name'] ) ?>[taxonomy][<?php echo esc_attr( $key ) ?>]">
 									<?php echo $label ?>
                                 </label>
-                                <select name="<?php echo esc_attr( $field['name'] ) ?>[taxonomy][<?php echo esc_attr( $key ) ?>]" data-zelda-field>
+                                <select name="<?php echo esc_attr( $field['name'] ) ?>[taxonomy][<?php echo esc_attr( $key ) ?>]"
+                                        data-zelda-field>
                                     <option value="placeholder"></option>
 									<?php $this_taxonomy = get_terms( array( 'taxonomy' => $key ) );
 									if ( $this_taxonomy && count( $this_taxonomy ) > 0
@@ -637,15 +641,14 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 		*  @return	$value
 		*/
 
-		/*
-
 		function load_value( $value, $post_id, $field ) {
+			if ( 'external' === $value['type'] ) {
+				$value['value'] = $this->convert_local_to_url( $value['value'] );
+			}
 
 			return $value;
 
 		}
-
-		*/
 
 		/**
 		 * Get the value for the data type.
@@ -667,6 +670,27 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 			return null !== $return ? $return : false;
 		}
 
+		function convert_url_to_local( $url ) {
+			$local  = parse_url( get_home_url() );
+			$parsed = parse_url( $url );
+
+			if ( $local['host'] === $parsed['host'] ) {
+				$url = str_replace( [ $parsed['scheme'], $parsed['host'], '://' ], '', $url );
+				if ( 0 !== strpos( $url, '/' ) ) {
+					$url = "/$url";
+				}
+			}
+
+			return $url;
+		}
+
+		function convert_local_to_url( $local ) {
+			if ( 0 === strpos( $local, '/' ) ) {
+				return get_home_url( get_current_blog_id(), $local );
+			}
+
+			return $local;
+		}
 
 		/*
 		*  update_value()
@@ -685,6 +709,11 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 
 		function update_value( $value, $post_id, $field ) {
 			$destination = $this->get_type_value_from_form( $value['type'], $value );
+
+			// Attempt to convert local URLs to be host-independent.
+			if ( 'external' === $value['type'] ) {
+				$destination = $this->convert_url_to_local( $destination );
+			}
 
 			return array(
 				'type'  => $value['type'],
@@ -741,7 +770,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 					$destination = "mailto:{$destination_raw}";
 					break;
 				case 'external' :
-					$destination = $destination_raw;
+					$destination = $this->convert_url_to_local( $destination_raw );
 					break;
 			}
 
