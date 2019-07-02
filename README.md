@@ -8,8 +8,8 @@ I don't want to store URLs for local content in the database: Neither do you. Th
 
 - Select the content and taxonomy types *you* want to link to!
 - *Never* store URLs in the database (all links are created at page-load)!
-    - Well, except for `external` links, which are URLs by definition.
-        - ...But it does try and guess if external links are local, and saves them without a host if they are (so you don't end up with staging URLs on production).
+    - Well, except for `uri` links, which are URLs by definition.
+        - ...But it does try and guess if uri links are local, and saves them without a host if they are (so you don't end up with staging URLs on production).
 - Filter *everything* (**future release**)
 - Add your own link types on the fly (**future release**)
 

@@ -63,7 +63,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 				'default_text'      => "Read More",
 				'user_text'         => false,
 				'email'             => false,
-				'external'          => false,
+				'uri'          => false,
 				'new_tab'           => true,
 				'return_format'     => 'el',
 			);
@@ -188,9 +188,9 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 			) );
 
 			acf_render_field_setting( $field, array(
-				'label'        => __( 'External', 'acf-zelda' ),
-				'instructions' => __( 'Allow external links?', 'acf-zelda' ),
-				'name'         => 'external',
+				'label'        => __( 'URI', 'acf-zelda' ),
+				'instructions' => __( 'Allow URLs?', 'acf-zelda' ),
+				'name'         => 'uri',
 				'type'         => 'true_false',
 				'ui'           => 1,
 			) );
@@ -281,8 +281,8 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 				$type_options['email'] = "Email";
 			}
 
-			if ( $field['external'] ) {
-				$type_options['external'] = "External";
+			if ( $field['uri'] ) {
+				$type_options['uri'] = "URL";
 			}
 
 			/**
@@ -430,15 +430,15 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 				}
 
 				/*
-				*  External, if external is set
+				*  URI, if uri is set
 				*/
-				if ( $type_options['external'] && is_string( $type_options['external'] ) ) {
+				if ( $type_options['uri'] && is_string( $type_options['uri'] ) ) {
 					?>
-                    <div class="acf-field-zelda__external acf-field-zelda__fieldWrap" data-zelda-type="external" hidden>
-                        <label for="<?php echo esc_attr( $field['name'] ) ?>[external]"><?php echo $type_options['external']
+                    <div class="acf-field-zelda__uri acf-field-zelda__fieldWrap" data-zelda-type="uri" hidden>
+                        <label for="<?php echo esc_attr( $field['name'] ) ?>[uri]"><?php echo $type_options['uri']
 							?></label>
-                        <input data-zelda-field type="url" name="<?php echo esc_attr( $field['name'] ) ?>[external]"
-                               value="<?php echo 'external' === $stored_type ? $stored_value : null; ?>"/>
+                        <input data-zelda-field type="url" name="<?php echo esc_attr( $field['name'] ) ?>[uri]"
+                               value="<?php echo 'uri' === $stored_type ? $stored_value : null; ?>"/>
                     </div>
 					<?php
 				} ?>
@@ -657,7 +657,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 		*/
 
 		function load_value( $value, $post_id, $field ) {
-			if ( 'external' === $value['type'] ) {
+			if ( 'uri' === $value['type'] ) {
 				$value['value'] = $this->convert_local_to_url( $value['value'] );
 			}
 
@@ -726,7 +726,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 			$destination = $this->get_type_value_from_form( $value['type'], $value );
 
 			// Attempt to convert local URLs to be host-independent.
-			if ( 'external' === $value['type'] ) {
+			if ( 'uri' === $value['type'] ) {
 				$destination = $this->convert_url_to_local( $destination );
 			}
 
@@ -788,7 +788,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 				case 'email':
 					$destination = "mailto:{$destination_raw}";
 					break;
-				case 'external' :
+				case 'uri' :
 					$destination = $this->convert_url_to_local( $destination_raw );
 					break;
 			}
@@ -799,7 +799,8 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 					? esc_attr( $field['link_class'] . ' ' . $value['class'] )
 					: esc_attr( $field['link_class'] ) );
 
-				$target = $field['new_tab']
+				// Only open *external* links in new tab
+				$target = $field['new_tab'] && $destination === $this->convert_url_to_local( $destination_raw )
 					? 'target="_blank" rel="noopener noreferrer"'
 					: null;
 
@@ -935,7 +936,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 					return true;
 					break;
 
-				case 'external':
+				case 'uri':
 					if ( filter_var( $destination, FILTER_VALIDATE_URL ) ) {
 						return true;
 					}
