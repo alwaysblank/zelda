@@ -65,6 +65,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 				'email'             => false,
 				'external'          => false,
 				'new_tab'           => true,
+				'return_format'     => 'el',
 			);
 
 
@@ -200,6 +201,20 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 				'name'         => 'new_tab',
 				'type'         => 'true_false',
 				'ui'           => 1,
+			) );
+
+			// return_format
+			acf_render_field_setting( $field, array(
+				'label'        => __( 'Return Value', 'acf' ),
+				'instructions' => __( 'Specify the returned value on front end', 'acf' ),
+				'type'         => 'radio',
+				'name'         => 'return_format',
+				'layout'       => 'horizontal',
+				'choices'      => array(
+					'el'    => __( "HTML", 'acf' ),
+					'url'   => __( "URL", 'acf' ),
+					'array' => __( "Array", 'acf' )
+				)
 			) );
 
 		}
@@ -748,6 +763,10 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 
 			}
 
+			if ( 'array' === $field['return_format'] ) {
+				return $value;
+			}
+
 			$type = explode( '/', $value['type'] );
 
 			$destination_raw = $value['value'];
@@ -784,13 +803,20 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 					? 'target="_blank" rel="noopener noreferrer"'
 					: null;
 
-				return sprintf(
-					'<a href="%s" class="%s" %s>%s</a>',
-					esc_attr( $destination ),
-					esc_attr( $class ),
-					$target,
-					$value['text']
-				);
+				switch ( $field['return_format'] ):
+					case 'url':
+						return $destination;
+						break;
+					default:
+						return sprintf(
+							'<a href="%s" class="%s" %s>%s</a>',
+							esc_attr( $destination ),
+							esc_attr( $class ),
+							$target,
+							$value['text']
+						);
+						break;
+				endswitch;
 			}
 
 

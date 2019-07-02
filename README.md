@@ -24,3 +24,6 @@ Once you've done that, just add a Zelda field and then call it in your template 
 the_field('example_zelda_field');
 // <a href="/posts/a-post-you-linked-to" class="field-class class-the-user-set">Link Text!</a>
 ```
+
+This is the default behavior. You can also return a url or the array stored in the databased by setting `return_format`
+to `url` or `array`.
