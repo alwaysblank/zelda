@@ -1,4 +1,7 @@
 {
+    "name": "livy/zelda",
+    "description": "A more useful Link",
+    "type": "wordpress-plugin",
     "require": {
         "zenodorus/arrays": "^1.2"
     }
