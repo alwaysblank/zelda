@@ -63,7 +63,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 				'default_text'      => "Read More",
 				'user_text'         => false,
 				'email'             => false,
-				'uri'          => false,
+				'uri'               => false,
 				'new_tab'           => true,
 				'return_format'     => 'el',
 			);
@@ -355,13 +355,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 									} ?>
 
 									<?php
-                                        $this_type = get_posts(
-                                                array(
-                                                        'post_type' => $key,
-                                                        // TODO: This is real bad, so this should be AJAXified at some point.
-                                                        'posts_per_page' => -1
-                                                )
-                                        );
+									$this_type = $this->get_post_list( $key );
 									if ( $this_type && count( $this_type ) > 0
 									) {
 										if ( $field['post_type_archive'] && get_post_type_archive_link( $key ) ) {
@@ -369,9 +363,9 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 										}
 										foreach ( $this_type as $post ) {
 											printf( '<option value="%s" %s>%s</option>',
-												$post->ID,
-												intval( $stored_value ) == $post->ID ? 'selected' : null,
-												$post->post_title
+												$post['id'],
+												intval( $stored_value ) == $post['id'] ? 'selected' : null,
+												$post['title']
 											);
 										}
 										// Can't be too careful
@@ -1054,6 +1048,35 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 		}
 
 		*/
+
+		protected function get_post_list( string $type ) {
+			if ( post_type_exists( $type ) ) {
+				if ( $cache = get_transient( "livy_zelda_post_{$type}_cache" ) ) {
+					return $cache;
+				} else {
+					$posts = get_posts(
+						array(
+							'post_type'      => $type,
+							// TODO: This is real bad, so this should be AJAXified at some point.
+							'posts_per_page' => - 1
+						)
+					);
+					if ( $posts ) {
+						$cache = array_map( function ( $post ) {
+							return [
+								'id'    => $post->ID,
+								'title' => $post->post_title,
+							];
+						}, $posts );
+						set_transient( "livy_zelda_post_{$type}_cache", $cache, MINUTE_IN_SECONDS );
+
+						return $cache;
+					}
+				}
+			}
+
+			return array();
+		}
 
 
 	}
