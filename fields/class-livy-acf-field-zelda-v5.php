@@ -658,6 +658,10 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 		*/
 
 		function load_value( $value, $post_id, $field ) {
+			if ( ! is_array( $value ) ) {
+				return $value;
+			}
+
 			if ( 'uri' === $value['type'] ) {
 				$value['value'] = $this->convert_local_to_url( $value['value'] );
 			}
@@ -690,7 +694,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 			$local  = parse_url( get_home_url() );
 			$parsed = parse_url( $url );
 
-			if ( $local['host'] === $parsed['host'] ) {
+			if (isset($local['host']) && isset($parsed['host']) && $local['host'] === $parsed['host'] ) {
 				$url = str_replace( [ $parsed['scheme'], $parsed['host'], '://' ], '', $url );
 				if ( 0 !== strpos( $url, '/' ) ) {
 					$url = "/$url";
@@ -846,6 +850,9 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 		*/
 
 		function validate_value( $valid, $value, $field, $input ) {
+			if ( ! is_array( $value ) ) {
+				return false;
+			}
 
 			$valid_number = function ( $possible_number ) {
 				return is_numeric( $possible_number );
