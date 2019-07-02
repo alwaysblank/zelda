@@ -354,7 +354,14 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 										);
 									} ?>
 
-									<?php $this_type = get_posts( array( 'post_type' => $key ) );
+									<?php
+                                        $this_type = get_posts(
+                                                array(
+                                                        'post_type' => $key,
+                                                        // TODO: This is real bad, so this should be AJAXified at some point.
+                                                        'posts_per_page' => -1
+                                                )
+                                        );
 									if ( $this_type && count( $this_type ) > 0
 									) {
 										if ( $field['post_type_archive'] && get_post_type_archive_link( $key ) ) {
