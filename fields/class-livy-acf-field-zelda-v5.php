@@ -336,7 +336,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 				<?php if ( isset( $type_options['content'] )
 				           && is_array( $type_options['content'] )
 				           && is_array( $type_options['content']['options'] ) ) { ?>
-                    <div class="acf-field-zelda__postTypes .acf-field-zelda__contentWrap" data-zelda-type="content">
+                    <div class="acf-field-zelda__postTypes acf-field-zelda__contentWrap" data-zelda-type="content">
 						<?php foreach ( $type_options['content']['options'] as $key => $label ) { ?>
                             <div class="acf-field-zelda__postType acf-field-zelda__fieldWrap"
                                  data-zelda-type="<?php echo esc_attr( $key ) ?>" hidden>
@@ -382,7 +382,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 				if ( isset( $type_options['taxonomies'] )
 				     && is_array( $type_options['taxonomies'] )
 				     && is_array( $type_options['taxonomies']['options'] ) ) { ?>
-                    <div class="acf-field-zelda__taxonomies .acf-field-zelda__contentWrap" data-zelda-type="taxonomy">
+                    <div class="acf-field-zelda__taxonomies acf-field-zelda__contentWrap" data-zelda-type="taxonomy">
 						<?php foreach ( $type_options['taxonomies']['options'] as $key => $label ) {
 							?>
                             <div class="acf-field-zelda__taxonomy acf-field-zelda__fieldWrap"

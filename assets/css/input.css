@@ -14,6 +14,19 @@
     }
 }
 
-.acf-field-zelda .acf-input > * {
-    padding: 5px;
+@media (min-width: 768px) {
+    .acf-field-zelda .acf-input > * {
+        flex-grow: 1;
+    }
+}
+
+.acf-field-zelda .acf-input label {
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
+@media (min-width: 768px) {
+    .acf-field-zelda__typeSelect {
+        margin-right: 5px;
+    }
 }
