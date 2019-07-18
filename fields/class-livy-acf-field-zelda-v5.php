@@ -772,12 +772,17 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 				return $value;
 			}
 
-			$type = explode( '/', $value['type'] );
-
 			// Can't format a value that doesn't exist
 			if ( ! isset( $value['value'] ) ) {
 				return $value;
 			}
+
+			// Need the type to continue
+			if ( ! isset( $value['type'] ) ) {
+				return $value;
+			}
+
+			$type = explode( '/', $value['type'] );
 
 			$destination_raw = $value['value'];
 			$destination     = false;
@@ -805,12 +810,12 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 
 			if ( $destination ) {
 
-				$class = trim( $value['class']
-					? esc_attr( $field['link_class'] . ' ' . $value['class'] )
-					: esc_attr( $field['link_class'] ) );
+				$class = trim( $value['class'] ?? ''
+					? esc_attr( $field['link_class'] ?? '' . ' ' . $value['class'] )
+					: esc_attr( $field['link_class'] ?? '' ) );
 
 				// Only open *external* links in new tab
-				$target = $field['new_tab'] && $destination === $this->convert_url_to_local( $destination_raw )
+				$target = ($field['new_tab'] ?? false) && $destination === $this->convert_url_to_local( $destination_raw )
 					? 'target="_blank" rel="noopener noreferrer"'
 					: null;
 
