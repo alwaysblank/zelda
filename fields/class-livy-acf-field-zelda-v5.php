@@ -694,7 +694,7 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 			$local  = parse_url( get_home_url() );
 			$parsed = parse_url( $url );
 
-			if (isset($local['host']) && isset($parsed['host']) && $local['host'] === $parsed['host'] ) {
+			if ( isset( $local['host'] ) && isset( $parsed['host'] ) && $local['host'] === $parsed['host'] ) {
 				$url = str_replace( [ $parsed['scheme'], $parsed['host'], '://' ], '', $url );
 				if ( 0 !== strpos( $url, '/' ) ) {
 					$url = "/$url";
@@ -773,6 +773,11 @@ if ( ! class_exists( 'livy_acf_field_zelda' ) ) :
 			}
 
 			$type = explode( '/', $value['type'] );
+
+			// Can't format a value that doesn't exist
+			if ( ! isset( $value['value'] ) ) {
+				return $value;
+			}
 
 			$destination_raw = $value['value'];
 			$destination     = false;
